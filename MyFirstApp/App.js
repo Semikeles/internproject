@@ -1,39 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
-import UserItem from './components/UserItem';
+import React, { useState, useEffect } from 'react';
+import { View, Button, Text } from 'react-native';
 
 export default function App() {
-  const [users, setUsers] = useState([]);
+  const [resourceType, setResourceType] = useState('posts');
 
   useEffect(() => {
-    // API'den kullanıcı verilerini çekiyoruz
-    fetch('https://jsonplaceholder.typicode.com/users')
-      .then(response => response.json())
-      .then(data => setUsers(data))
-      .catch(error => console.error(error));
-  }, []);
+    console.log('Yükleme:', resourceType);
+  }, [resourceType]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Kullanıcı Listesi</Text>
-      <FlatList
-        data={users}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => <UserItem user={item} />}
-      />
+    <View style={{ padding: 20 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20 }}>
+        <Button title="Posts" onPress={() => setResourceType('posts')} />
+        <Button title="Photos" onPress={() => setResourceType('photos')} />
+        <Button title="Users" onPress={() => setResourceType('users')} />
+      </View>
+      <Text style={{ fontSize: 24, textAlign: 'center' }}>{resourceType}</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 50,
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-});
