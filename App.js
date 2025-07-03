@@ -16,7 +16,7 @@ const Tab = createBottomTabNavigator();
 function MainTabs() {
   return (
     <Tab.Navigator
-      initialRouteName="Homes" // Yanlış isim
+      initialRouteName="Homes" 
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
@@ -29,7 +29,7 @@ function MainTabs() {
             iconName = focused ? 'person' : 'person-outline';
           }
 
-          // return unutuldu
+          
           <Ionicons name={iconName} size={size} color={color} />
         },
         tabBarActiveColor: '#007AFF', 
