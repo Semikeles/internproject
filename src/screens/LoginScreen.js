@@ -3,8 +3,6 @@ import { SafeAreaView, View, Text, StyleSheet, Image, TextInput, TouchableOpacit
 
 const icon = require('../../assets/icon.png');
 
-
-
 export default function LoginScreen({ navigation }) {
   const [form, setForm] = useState({
     email: '',
@@ -18,7 +16,7 @@ export default function LoginScreen({ navigation }) {
     }
     
     if (form.email === 'csb@gmail.com' && form.password === '123456') {
-      navigation.navigate('Home');
+      navigation.replace('MainTabs');  // Burada MainTabs'e geçiş yapıyoruz
     } else {
       Alert.alert('Hata', 'Email veya şifre yanlış');
     }
@@ -26,7 +24,6 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#2c3e50' }}>
-
       <View style={styles.container}>
         <View style={styles.header}>
           <Image source={icon} style={styles.headerImg} />
@@ -63,7 +60,6 @@ export default function LoginScreen({ navigation }) {
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
-
         </View>
       </View>
     </SafeAreaView>
