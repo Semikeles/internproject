@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+import { colors } from '../config/Color';
+// Eğer Sora fontunu yüklediysen App.js üzerinden global yüklü gelecek
 
 const avatarPlaceholder = 'https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png';
 
@@ -15,12 +17,8 @@ export default function UserCard() {
 
         const updatedUsers = data.map((user, index) => {
           const randomUser = genderAgeData.results[index];
-          
-          // Yaş hesaplama
           const dob = new Date(randomUser.dob.date);
-          const ageDifMs = Date.now() - dob.getTime();
-          const ageDate = new Date(ageDifMs);
-          const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+          const age = new Date().getFullYear() - dob.getFullYear();
 
           return {
             ...user,
@@ -37,7 +35,7 @@ export default function UserCard() {
 
   return (
     <ScrollView contentContainerStyle={styles.list}>
-      <Text style={styles.title}>List</Text>
+      <Text style={styles.title}>User List</Text>
       {users.map(user => (
         <View key={user.id} style={styles.card}>
           <View style={styles.header}>
@@ -50,7 +48,7 @@ export default function UserCard() {
 
           <View style={styles.infoRow}>
             <Text style={styles.label}>Age:</Text>
-            <Text style={styles.value}>{user.age} y.o.</Text>
+            <Text style={styles.value}>{user.age}</Text>
           </View>
 
           <View style={styles.infoRow}>
@@ -81,15 +79,16 @@ export default function UserCard() {
 const styles = StyleSheet.create({
   list: {
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '900',
+    fontSize: 28,
+    fontFamily: 'Sora_700Bold',
+    color: colors.textPrimary,
     marginBottom: 16,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderRadius: 15,
     padding: 20,
     marginBottom: 24,
@@ -108,19 +107,20 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: '#f0c8b6',
+    backgroundColor: colors.accent,
   },
   headerText: {
     marginLeft: 18,
   },
   name: {
     fontSize: 20,
-    fontWeight: '900',
-    color: '#333',
+    fontFamily: 'Sora_700Bold',
+    color: colors.textPrimary,
   },
   subText: {
     fontSize: 14,
-    color: '#888',
+    fontFamily: 'Sora_400Regular',
+    color: colors.textSecondary,
     marginTop: 4,
   },
   infoRow: {
@@ -129,11 +129,11 @@ const styles = StyleSheet.create({
   },
   label: {
     width: 100,
-    fontWeight: '700',
-    color: '#333',
+    fontFamily: 'Sora_700Bold',
+    color: colors.textPrimary,
   },
   value: {
-    color: '#555',
-    fontWeight: '500',
+    fontFamily: 'Sora_400Regular',
+    color: colors.textSecondary,
   },
 });

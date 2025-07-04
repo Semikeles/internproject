@@ -1,29 +1,39 @@
-import React, { useState } from "react";
-import { SafeAreaView, View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert } from "react-native";
+import React, { useState } from 'react';
+import {
+  SafeAreaView,
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TextInput,
+  TouchableOpacity,
+  Alert
+} from 'react-native';
 
+import { colors } from '../config/Color';// kendi dosya yoluna göre düzelt
 const icon = require('../../assets/icon.png');
 
 export default function LoginScreen({ navigation }) {
-  const [form, setForm] = useState({
+  const [loginForm, setLoginForm] = useState({
     email: '',
     password: '',
   });
 
   const handleLogin = () => {
-    if (form.email.length === 0 || form.password.length === 0) {
+    if (loginForm.email.length === 0 || loginForm.password.length === 0) {
       Alert.alert('Hata', 'Lütfen tüm alanları doldurun');
       return;
     }
-    
-    if (form.email === 'csb@gmail.com' && form.password === '123456') {
-      navigation.replace('MainTabs');  // Burada MainTabs'e geçiş yapıyoruz
+
+    if (loginForm.email === 'csb@gmail.com' && loginForm.password === '123456') {
+      navigation.replace('MainTabs');
     } else {
       Alert.alert('Hata', 'Email veya şifre yanlış');
     }
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#2c3e50' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Image source={icon} style={styles.headerImg} />
@@ -32,28 +42,28 @@ export default function LoginScreen({ navigation }) {
         <Text style={styles.title}>Welcome</Text>
 
         <View style={styles.form}>
-          <View style={styles.input}>
-            <Text style={styles.inputLabel}>Email address</Text>    
-            <TextInput 
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Email address</Text>
+            <TextInput
               style={styles.inputControl}
               placeholder="csb@example.com"
-              placeholderTextColor='#6b7280'
+              placeholderTextColor={colors.textSecondary}
               keyboardType="email-address"
               autoCapitalize="none"
-              value={form.email}
-              onChangeText={email => setForm({...form, email})}
+              value={loginForm.email}
+              onChangeText={email => setLoginForm({ ...loginForm, email })}
             />
           </View>
 
-          <View style={styles.input}>
-            <Text style={styles.inputLabel}>Password</Text>    
-            <TextInput 
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Password</Text>
+            <TextInput
               secureTextEntry
               style={styles.inputControl}
               placeholder="***************"
-              placeholderTextColor='#6b7280'
-              value={form.password}
-              onChangeText={password => setForm({...form, password})}
+              placeholderTextColor={colors.textSecondary}
+              value={loginForm.password}
+              onChangeText={password => setLoginForm({ ...loginForm, password })}
             />
           </View>
 
@@ -81,44 +91,44 @@ const styles = StyleSheet.create({
     marginBottom: 36,
   },
   title: {
-    color: 'white',
-    fontSize: 27,
-    fontWeight: '700', 
+    color: colors.textPrimary,
+    fontSize: 28,
+    fontFamily: 'Sora_700Bold',
     textAlign: 'center',
     marginBottom: 24,
   },
   form: {
     marginTop: 10,
   },
-  input: {
+  inputGroup: {
     marginBottom: 20,
   },
   inputLabel: {
-    fontSize: 17,
-    fontWeight: '500',
-    color: '#fff',
+    fontSize: 16,
+    fontFamily: 'Sora_600SemiBold',
+    color: colors.textPrimary,
     marginBottom: 8,
   },
   inputControl: {
     height: 44,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 12,
     fontSize: 15,
-    fontWeight: '500',
-    color: '#222',
+    fontFamily: 'Sora_400Regular',
+    color: colors.textPrimary,
   },
   button: {
-    backgroundColor: '#40E0D0',
+    backgroundColor: colors.primary,
     paddingVertical: 14,
     borderRadius: 12,
     marginTop: 10,
     alignItems: 'center',
   },
   buttonText: {
-    color: 'white',
+    color: colors.textPrimary,
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Sora_600SemiBold',
   },
 });
