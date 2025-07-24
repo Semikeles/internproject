@@ -1,139 +1,70 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+import React from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors } from '../config/Color';
-// Eğer Sora fontunu yüklediysen App.js üzerinden global yüklü gelecek
+import { Ionicons } from '@expo/vector-icons';
 
-const avatarPlaceholder = 'https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png';
-
-export default function UserCard() {
-  const [users, setUsers] = useState([]);
-
-  useEffect(() => {
-    fetch('https://jsonplaceholder.typicode.com/users')
-      .then(res => res.json())
-      .then(async (data) => {
-        const genderAgeResponse = await fetch(`https://randomuser.me/api/?results=${data.length}`);
-        const genderAgeData = await genderAgeResponse.json();
-
-        const updatedUsers = data.map((user, index) => {
-          const randomUser = genderAgeData.results[index];
-          const dob = new Date(randomUser.dob.date);
-          const age = new Date().getFullYear() - dob.getFullYear();
-
-          return {
-            ...user,
-            avatar: randomUser.picture?.medium || avatarPlaceholder,
-            gender: randomUser.gender === 'male' ? 'Male' : 'Female',
-            age: age,
-          };
-        });
-
-        setUsers(updatedUsers);
-      })
-      .catch(err => console.error(err));
-  }, []);
-
+export default function AccountScreen() {
   return (
-    <ScrollView contentContainerStyle={styles.list}>
-      <Text style={styles.title}>User List</Text>
-      {users.map(user => (
-        <View key={user.id} style={styles.card}>
-          <View style={styles.header}>
-            <Image source={{ uri: user.avatar }} style={styles.avatar} />
-            <View style={styles.headerText}>
-              <Text style={styles.name}>{user.name}</Text>
-              <Text style={styles.subText}>{user.age} y.o. / {user.gender}</Text>
-            </View>
-          </View>
+    <View style={styles.container}>
+      <Image
+        source={{
+          uri: 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png',
+        }}
+        style={styles.avatar}
+      />
 
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Age:</Text>
-            <Text style={styles.value}>{user.age}</Text>
-          </View>
+      <Text style={styles.name}>Durmuş Semih Keleş</Text>
+      <Text style={styles.info}>durmussemihkeles@gmail.com</Text>
+      <Text style={styles.info}>+90 534 395 17 52</Text>
+      <Text style={styles.info}>Age: 21</Text>
 
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Name:</Text>
-            <Text style={styles.value}>{user.name}</Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Email:</Text>
-            <Text style={styles.value}>{user.email}</Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Phone:</Text>
-            <Text style={styles.value}>{user.phone}</Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Website:</Text>
-            <Text style={styles.value}>{user.website}</Text>
-          </View>
-        </View>
-      ))}
-    </ScrollView>
+      <TouchableOpacity style={styles.button}>
+        <Ionicons name="create-outline" size={20} color="#fff" />
+        <Text style={styles.buttonText}>Edit Profile</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  list: {
-    padding: 16,
+  container: {
+    flex: 1,
     backgroundColor: colors.background,
-  },
-  title: {
-    fontSize: 28,
-    fontFamily: 'Sora_700Bold',
-    color: colors.textPrimary,
-    marginBottom: 16,
-  },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 15,
-    padding: 20,
-    marginBottom: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 5,
-  },
-  header: {
-    flexDirection: 'row',
-    marginBottom: 18,
     alignItems: 'center',
+    paddingTop: 80,
+    paddingHorizontal: 16,
   },
   avatar: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: colors.accent,
-  },
-  headerText: {
-    marginLeft: 18,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginBottom: 20,
+    backgroundColor: colors.surface,
   },
   name: {
-    fontSize: 20,
-    fontFamily: 'Sora_700Bold',
+    fontSize: 24,
+    fontWeight: 'bold',
     color: colors.textPrimary,
+    marginBottom: 8,
   },
-  subText: {
-    fontSize: 14,
-    fontFamily: 'Sora_400Regular',
-    color: colors.textSecondary,
-    marginTop: 4,
+  info: {
+    fontSize: 16,
+    color: colors.textPrimary,
+    marginBottom: 4,
   },
-  infoRow: {
+  button: {
     flexDirection: 'row',
-    marginBottom: 10,
+    backgroundColor: colors.primary,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 24,
+    alignItems: 'center',
   },
-  label: {
-    width: 100,
-    fontFamily: 'Sora_700Bold',
-    color: colors.textPrimary,
-  },
-  value: {
-    fontFamily: 'Sora_400Regular',
-    color: colors.textSecondary,
+  buttonText: {
+    color: '#fff',
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

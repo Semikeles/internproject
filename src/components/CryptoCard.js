@@ -5,19 +5,14 @@ import { useDispatch } from 'react-redux';
 import { addSymbol } from '../store/PortfolioSlice';
 import { colors } from '../config/Color';
 
-export default function NasdaqCard({ symbol, unitPrice }) {
+export default function CryptoCard({ symbol, pair = 'USDT', price }) {
   const dispatch = useDispatch();
   const [quantity, setQuantity] = useState('1');
-  const [total, setTotal] = useState('0.00');
 
-  useEffect(() => {
+  const total = () => {
     const qty = parseFloat(quantity);
-    if (!isNaN(qty)) {
-      setTotal((unitPrice * qty).toFixed(2));
-    } else {
-      setTotal('0.00');
-    }
-  }, [unitPrice, quantity]);
+    return !isNaN(qty) ? (qty * price).toFixed(2) : '0.00';
+  };
 
   const handleAddToPortfolio = () => {
     const qty = parseFloat(quantity);
@@ -28,9 +23,9 @@ export default function NasdaqCard({ symbol, unitPrice }) {
 
     dispatch(addSymbol({
       symbol,
-      type: 'nasdaq',
+      type: 'crypto',
       quantity: qty,
-      price: unitPrice,
+      price: price,
     }));
 
     Alert.alert('Success', `${symbol} added to portfolio.`);
@@ -39,27 +34,28 @@ export default function NasdaqCard({ symbol, unitPrice }) {
 
   return (
     <View style={styles.card}>
-      <View style={styles.headerRow}>
-        <Text style={styles.title}>{symbol}</Text>
+      <View style={styles.row}>
+        <Text style={styles.symbol}>{symbol}/{pair}</Text>
         <TouchableOpacity onPress={handleAddToPortfolio}>
           <Ionicons name="cart-outline" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
-
-      <Text style={styles.price}>Price: {unitPrice.toFixed(2)} USD</Text>
+      <Text style={styles.price}>
+        Price: {price !== null ? price.toFixed(2) : 'Loading...'} USD
+      </Text>
 
       <View style={styles.row}>
         <Text style={styles.label}>Quantity:</Text>
         <TextInput
           style={styles.input}
-          value={quantity}
           keyboardType="decimal-pad"
+          value={quantity}
           onChangeText={setQuantity}
-          maxLength={10}
+          placeholder="0"
         />
       </View>
 
-      <Text style={styles.total}>Total: {total} USD</Text>
+      <Text style={styles.total}>Total: {total()} USD</Text>
     </View>
   );
 }
@@ -70,21 +66,19 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     marginVertical: 8,
-    width: '90%',
-    alignSelf: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,
   },
-  headerRow: {
+  row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
   },
-  title: {
+  symbol: {
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.textPrimary,
@@ -92,29 +86,22 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 16,
     color: colors.textPrimary,
-    marginBottom: 8,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
   },
   label: {
     fontSize: 16,
     color: colors.textPrimary,
-    marginRight: 8,
   },
   input: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 8,
     padding: 8,
-    minWidth: 60,
+    minWidth: 80,
     textAlign: 'center',
     color: colors.textPrimary,
   },
   total: {
-    fontSize: 16,
+    marginTop: 8,
     fontWeight: 'bold',
     color: colors.textPrimary,
   },

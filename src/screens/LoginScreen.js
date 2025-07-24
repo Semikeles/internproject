@@ -10,8 +10,14 @@ import {
   Alert
 } from 'react-native';
 
-import { colors } from '../config/Color';// kendi dosya yoluna göre düzelt
+import { colors } from '../config/Color';
 const icon = require('../../assets/icon.png');
+
+
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+
+
+import { app } from '../config/firebase'; 
 
 export default function LoginScreen({ navigation }) {
   const [loginForm, setLoginForm] = useState({
@@ -20,16 +26,25 @@ export default function LoginScreen({ navigation }) {
   });
 
   const handleLogin = () => {
-    if (loginForm.email.length === 0 || loginForm.password.length === 0) {
+    const { email, password } = loginForm;
+
+    if (email.length === 0 || password.length === 0) {
       Alert.alert('Hata', 'Lütfen tüm alanları doldurun');
       return;
     }
 
-    if (loginForm.email === 'csb@gmail.com' && loginForm.password === '123456') {
-      navigation.replace('MainTabs');
-    } else {
-      Alert.alert('Hata', 'Email veya şifre yanlış');
-    }
+    const auth = getAuth(app);
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // ✅ Başarılı giriş
+        console.log('Login Success:', userCredential.user.email);
+        navigation.replace('MainTabs');
+      })
+      .catch((error) => {
+        console.log('Login Error:', error);
+        Alert.alert('Hata', 'Email veya şifre yanlış');
+      });
   };
 
   return (
@@ -46,7 +61,7 @@ export default function LoginScreen({ navigation }) {
             <Text style={styles.inputLabel}>Email address</Text>
             <TextInput
               style={styles.inputControl}
-              placeholder="csb@example.com"
+              placeholder="you@example.com"
               placeholderTextColor={colors.textSecondary}
               keyboardType="email-address"
               autoCapitalize="none"
