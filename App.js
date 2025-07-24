@@ -11,9 +11,9 @@ import { Provider } from 'react-redux';
 import { store } from './src/store/Index';
 import { colors } from './src/config/Color';
 
-// Firebase Auth
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { app } from './src/config/firebase'; // kendi config dosyana göre
+// ✅ Firebase Auth
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './src/config/firebaseConfig';
 
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -65,8 +65,7 @@ export default function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const auth = getAuth(app);
-
+    // ✅ Burada getAuth tekrar çağrılmıyor, direkt import edilen auth kullanılıyor
     const unsubscribe = onAuthStateChanged(auth, user => {
       setUser(user);
       if (initializing) setInitializing(false);

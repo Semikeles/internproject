@@ -13,11 +13,9 @@ import {
 import { colors } from '../config/Color';
 const icon = require('../../assets/icon.png');
 
-
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-
-
-import { app } from '../config/firebase'; 
+// ✅ Firebase import
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/firebaseConfig';
 
 export default function LoginScreen({ navigation }) {
   const [loginForm, setLoginForm] = useState({
@@ -33,11 +31,8 @@ export default function LoginScreen({ navigation }) {
       return;
     }
 
-    const auth = getAuth(app);
-
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // ✅ Başarılı giriş
         console.log('Login Success:', userCredential.user.email);
         navigation.replace('MainTabs');
       })
