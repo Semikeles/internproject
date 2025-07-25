@@ -1,5 +1,7 @@
+// CryptoScreen.js
 import React, { useEffect, useState } from 'react';
 import {
+  SafeAreaView,
   ScrollView,
   View,
   TextInput,
@@ -8,26 +10,12 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import CryptoCard from '../components/CryptoCard';
-import Header from '../components/Header';
 import { colors } from '../config/Color';
-
-
-const POPULAR_CRYPTO_SYMBOLS = [
-  'BTC', 'ETH', 'BNB', 'XRP', 'ADA', 'SOL', 'DOT', 'DOGE', 'MATIC', 'LTC',
-  'SHIB', 'TRX', 'AVAX', 'UNI', 'WBTC', 'LINK', 'ALGO', 'ATOM', 'XLM', 'FTT',
-  'VET', 'ICP', 'AXS', 'FIL', 'THETA', 'XMR', 'EOS', 'CRO', 'AAVE', 'NEAR',
-  'KSM', 'MKR', 'CAKE', 'QNT', 'ZEC', 'SAND', 'LUNA', 'ENJ', 'BCH', 'CHZ',
-  'XTZ', 'BAT', 'GRT', 'MANA', 'COMP', 'DASH', 'YFI', 'ZIL', 'KLAY', 'CELO',
-  'RVN', 'OMG', 'DCR', '1INCH', 'FTM', 'HNT', 'KNC', 'WAVES', 'GLM', 'STX',
-  'NEXO', 'AR', 'LRC', 'SUSHI', 'ZRX', 'REN', 'BAL', 'CRV', 'NKN', 'UST',
-  'CEL', 'BTG', 'ANKR', 'SXP', 'HUSD', 'CHSB', 'GNO', 'OCEAN', 'CVC', 'BNT',
-  'SRM', 'NMR', 'KAVA'
-];
-
+const POPULAR_CRYPTO_SYMBOLS = [ 'BTC', 'ETH', 'BNB', 'XRP', 'ADA', 'SOL', 'DOT', 'DOGE', 'MATIC', 'LTC', 'SHIB', 'TRX', 'AVAX', 'UNI', 'WBTC', 'LINK', 'ALGO', 'ATOM', 'XLM', 'FTT', 'VET', 'ICP', 'AXS', 'FIL', 'THETA', 'XMR', 'EOS', 'CRO', 'AAVE', 'NEAR', 'KSM', 'MKR', 'CAKE', 'QNT', 'ZEC', 'SAND', 'LUNA', 'ENJ', 'BCH', 'CHZ', 'XTZ', 'BAT', 'GRT', 'MANA', 'COMP', 'DASH', 'YFI', 'ZIL', 'KLAY', 'CELO', 'RVN', 'OMG', 'DCR', '1INCH', 'FTM', 'HNT', 'KNC', 'WAVES', 'GLM', 'STX', 'NEXO', 'AR', 'LRC', 'SUSHI', 'ZRX', 'REN', 'BAL', 'CRV', 'NKN', 'UST', 'CEL', 'BTG', 'ANKR', 'SXP', 'HUSD', 'CHSB', 'GNO', 'OCEAN', 'CVC', 'BNT', 'SRM', 'NMR', 'KAVA' ];
 
 const UNIQUE_SYMBOLS = [...new Set(POPULAR_CRYPTO_SYMBOLS)];
 
-export default function CryptoScreen({ navigation }) {
+export default function CryptoScreen() {
   const [prices, setPrices] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [loading, setLoading] = useState(true);
@@ -39,10 +27,7 @@ export default function CryptoScreen({ navigation }) {
         const promises = UNIQUE_SYMBOLS.map(symbol =>
           fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}USDT`)
             .then(res => res.json())
-            .then(data => ({
-              symbol,
-              price: data.price ? parseFloat(data.price) : 0,
-            }))
+            .then(data => ({ symbol, price: parseFloat(data.price) || 0 }))
             .catch(() => ({ symbol, price: 0 }))
         );
 
@@ -56,13 +41,12 @@ export default function CryptoScreen({ navigation }) {
           });
           return newQty;
         });
-      } catch (error) {
-        console.error('Binance API error:', error);
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchPrices();
   }, []);
 
@@ -72,55 +56,52 @@ export default function CryptoScreen({ navigation }) {
     }
   };
 
-  if (loading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  }
-
   return (
-    <>
-      {/* HEADER BURADA */}
-      <Header showBack={true} navigation={navigation} title="Crypto Portfolio" />
+    <SafeAreaView style={styles.safe}>
+      {loading ? (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.container}>
+          {prices.map(({ symbol, price }) => {
+            const quantity = quantities[symbol] || '0';
+            const total = (parseFloat(quantity) || 0) * price;
 
-      <ScrollView contentContainerStyle={styles.container}>
-        {prices.map(({ symbol, price }) => {
-          const quantity = quantities[symbol] || '0';
-          const total = (parseFloat(quantity) || 0) * price;
-
-          return (
-            <View key={`${symbol}-${price}`} style={styles.card}>
-              <CryptoCard symbol={symbol} price={price} />
-              <View style={styles.row}>
-                <Text style={styles.label}>Quantity:</Text>
-                <TextInput
-                  style={styles.input}
-                  keyboardType="decimal-pad"
-                  value={quantity}
-                  onChangeText={value => handleQuantityChange(symbol, value)}
-                  placeholder="0"
-                />
+            return (
+              <View key={symbol} style={styles.card}>
+                <CryptoCard symbol={symbol} price={price} />
+                <View style={styles.row}>
+                  <Text style={styles.label}>Quantity:</Text>
+                  <TextInput
+                    style={styles.input}
+                    keyboardType="decimal-pad"
+                    value={quantity}
+                    onChangeText={v => handleQuantityChange(symbol, v)}
+                  />
+                </View>
+                <Text style={styles.total}>Total: {total.toFixed(2)} USD</Text>
               </View>
-              <Text style={styles.total}>Total: {total.toFixed(2)} USD</Text>
-            </View>
-          );
-        })}
-      </ScrollView>
-    </>
+            );
+          })}
+        </ScrollView>
+      )}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   container: {
     padding: 16,
-    backgroundColor: colors.background,
   },
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',
-    marginTop: 40,
+    alignItems: 'center',
   },
   card: {
     backgroundColor: colors.surface,
@@ -135,8 +116,8 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: colors.textPrimary,
     marginRight: 8,
+    color: colors.textPrimary,
   },
   input: {
     flex: 1,

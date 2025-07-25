@@ -1,4 +1,3 @@
-// BistScreen.js
 import React, { useEffect, useState } from 'react';
 import {
   ScrollView,
@@ -7,7 +6,6 @@ import {
   StyleSheet,
 } from 'react-native';
 import { colors } from '../config/Color';
-import Header from '../components/Header';
 import BistCard from '../components/BistCard';
 
 const POPULAR_BIST_SYMBOLS = [
@@ -23,11 +21,11 @@ const POPULAR_BIST_SYMBOLS = [
   'ZOREN', 'EKGYO', 'ISGYO', 'SNGYO', 'TSKB'
 ];
 
+const API_KEY = '6U3eA1XrlhTOxu11gMV7gL:4Ucs5GQtObojNQKqErLEBe';
+
 export default function BistScreen() {
   const [prices, setPrices] = useState({});
   const [loading, setLoading] = useState(true);
-
-  const API_KEY = '6U3eA1XrlhTOxu11gMV7gL:4Ucs5GQtObojNQKqErLEBe';
 
   useEffect(() => {
     const fetchPrices = async () => {
@@ -36,20 +34,33 @@ export default function BistScreen() {
         const response = await fetch('https://api.collectapi.com/economy/liveBorsa', {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `apikey ${API_KEY}`,
+            'content-type': 'application/json',
+            'authorization': `apikey ${API_KEY}`,
           },
         });
 
-        const data = await response.json();
+        const text = await response.text();
+        console.log('API Raw Response:', text);
+
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (parseError) {
+          console.error('JSON parse error:', parseError);
+          setPrices({});
+          setLoading(false);
+          return;
+        }
+
         if (data.success && Array.isArray(data.result)) {
           const pricesObj = {};
           for (const symbol of POPULAR_BIST_SYMBOLS) {
             const stock = data.result.find(item => item.name === symbol);
-            pricesObj[symbol] = stock ? stock.price : 0;
+            pricesObj[symbol] = stock ? parseFloat(stock.price) : 0;
           }
           setPrices(pricesObj);
         } else {
+          console.error('API responded but success is false or result not array:', data);
           setPrices({});
         }
       } catch (error) {
@@ -65,8 +76,6 @@ export default function BistScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Header showBack={true} />
-
       {loading ? (
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color={colors.primary} />

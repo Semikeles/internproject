@@ -1,3 +1,4 @@
+// App.js
 import React, { useState, useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import {
@@ -11,13 +12,12 @@ import { Provider } from 'react-redux';
 import { store } from './src/store/Index';
 import { colors } from './src/config/Color';
 
-// ✅ Firebase Auth
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './src/config/firebaseConfig';
 
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
-import SignUpScreen from './src/screens/SignUpScreen'; // ✅ Kayıt ekranı
+import SignUpScreen from './src/screens/SignUpScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import PortfolioScreen from './src/screens/PortfolioScreen';
 import UserScreen from './src/screens/UserScreen';
@@ -37,7 +37,6 @@ function MainTabs() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Portfolio') {
@@ -45,7 +44,6 @@ function MainTabs() {
           } else if (route.name === 'User') {
             iconName = focused ? 'person' : 'person-outline';
           }
-
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: colors.primary,
@@ -70,13 +68,12 @@ export default function App() {
       setUser(user);
       if (initializing) setInitializing(false);
     });
-
     return unsubscribe;
   }, []);
 
   if (initializing) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
@@ -85,52 +82,26 @@ export default function App() {
   return (
     <Provider store={store}>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator
+          screenOptions={{
+            headerStyle: { backgroundColor: colors.surface },
+            headerTintColor: colors.textPrimary,
+            headerTitleStyle: { fontFamily: 'Sora_600SemiBold', fontSize: 20 },
+          }}
+        >
           {user ? (
             <>
-              <Stack.Screen
-                name="MainTabs"
-                component={MainTabs}
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="Crypto"
-                component={CryptoScreen}
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="Nasdaq"
-                component={NasdaqScreen}
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="Bist"
-                component={BistScreen}
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="Gold"
-                component={GoldScreen}
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="EditProfile"
-                component={EditProfileScreen}
-                options={{ headerShown: true, title: 'Edit Profile' }}
-              />
+              <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+              <Stack.Screen name="Crypto" component={CryptoScreen} options={{ title: 'Crypto Portfolio' }} />
+              <Stack.Screen name="Nasdaq" component={NasdaqScreen} />
+              <Stack.Screen name="Bist" component={BistScreen} />
+              <Stack.Screen name="Gold" component={GoldScreen} />
+              <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: 'Edit Profile' }} />
             </>
           ) : (
             <>
-              <Stack.Screen
-                name="Login"
-                component={LoginScreen}
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="SignUp"
-                component={SignUpScreen}
-                options={{ headerShown: false }}
-              />
+              <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+              <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
             </>
           )}
         </Stack.Navigator>

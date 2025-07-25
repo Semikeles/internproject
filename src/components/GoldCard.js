@@ -1,140 +1,141 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, TextInput, Button } from 'react-native';
-import { colors } from '../config/Color';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
 import { addSymbol } from '../store/PortfolioSlice';
+import { colors } from '../config/Color';
 
 export default function GoldCard() {
-  const [price, setPrice] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [grams, setGrams] = useState('');
-  const [total, setTotal] = useState(0);
-
   const dispatch = useDispatch();
+  const [price, setPrice] = useState(0);
+  const [quantity, setQuantity] = useState('1');
+  const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState('0.00');
 
   useEffect(() => {
-    const fetchGoldPrice = async () => {
+    const fetchPrice = async () => {
       try {
-        const response = await fetch(`https://kapalicarsi.apiluna.org`);
-        const data = await response.json();
-        const gold = data.find(item => item.code === 'ALTIN');
+        const res = await fetch(`https://kapalicarsi.apiluna.org`);
+        const data = await res.json();
+        const gold = data.find(i => i.code === 'ALTIN');
         if (gold) {
           setPrice(parseFloat(gold.satis));
         }
-      } catch (error) {
-        console.error('Fetch error:', error);
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchGoldPrice();
+    fetchPrice();
   }, []);
 
   useEffect(() => {
-    if (price && grams) {
-      const calculated = parseFloat(price) * parseFloat(grams);
-      setTotal(calculated);
+    const qty = parseFloat(quantity);
+    if (!isNaN(qty)) {
+      setTotal((price * qty).toFixed(2));
     } else {
-      setTotal(0);
+      setTotal('0.00');
     }
-  }, [grams, price]);
+  }, [price, quantity]);
 
-  const handleStore = () => {
-    if (price && grams) {
-      console.log('Dispatching addSymbol with:', { grams, price });
-      dispatch(
-        addSymbol({
-          symbol: 'GA',
-          type: 'gold',
-          quantity: parseFloat(grams),
-          price: price,
-        })
-      );
-      console.log('Stored:', grams, 'grams at', price);
-    } else {
-      console.log('Price or grams missing:', price, grams);
+  const handleAdd = () => {
+    const qty = parseFloat(quantity);
+    if (!qty || qty <= 0) {
+      Alert.alert('Error', 'Please enter a valid quantity.');
+      return;
     }
+    dispatch(addSymbol({
+      symbol: 'GA',
+      type: 'gold',
+      quantity: qty,
+      price,
+    }));
+    Alert.alert('Success', `Gold added to portfolio.`);
+    setQuantity('1');
   };
 
-  // Yeni test butonu için fonksiyon
-  const handleTestStore = () => {
-    dispatch(
-      addSymbol({
-        symbol: 'GA',
-        type: 'gold',
-        quantity: 1,
-        price: 2500,
-      })
-    );
-    console.log('Test store done');
-  };
+  if (loading) {
+    return <ActivityIndicator size="large" color={colors.primary} />;
+  }
 
   return (
     <View style={styles.card}>
-      {loading ? (
-        <ActivityIndicator size="large" color={colors.primary} />
-      ) : (
-        <>
-          <Text style={styles.title}>Gold (Gram)</Text>
-          <Text style={styles.price}>
-            {price ? `${price.toFixed(2)} TRY` : 'No Data'}
-          </Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.title}>Gold (Gram)</Text>
+        <TouchableOpacity onPress={handleAdd}>
+          <Ionicons name="cart-outline" size={24} color={colors.textPrimary} />
+        </TouchableOpacity>
+      </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Enter grams"
-            placeholderTextColor="#ddd"
-            keyboardType="numeric"
-            value={grams}
-            onChangeText={setGrams}
-          />
+      <Text style={styles.price}>Price: {price.toFixed(2)} TRY</Text>
 
-          <Text style={styles.total}>Total: {total.toFixed(2)} TRY</Text>
+      <View style={styles.row}>
+        <Text style={styles.label}>Grams:</Text>
+        <TextInput
+          style={styles.input}
+          value={quantity}
+          keyboardType="decimal-pad"
+          onChangeText={setQuantity}
+        />
+      </View>
 
-          <View style={{ marginTop: 12 }}>
-            <Button title="Store" onPress={handleStore} />
-          </View>
-
-          <View style={{ marginTop: 12 }}>
-            <Button title="Test Store" onPress={handleTestStore} color="orange" />
-          </View>
-        </>
-      )}
+      <Text style={styles.total}>Total: {total} TRY</Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
+const styles = StyleSheet.create({card: {
     backgroundColor: colors.surface,
+    padding: 16,
     borderRadius: 12,
-    padding: 20,
-    alignItems: 'center',
+    marginVertical: 8,
+    width: '90%',
+    alignSelf: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
     elevation: 2,
   },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: colors.textPrimary,
-    marginBottom: 10,
   },
   price: {
-    fontSize: 18,
+    fontSize: 16,
     color: colors.textPrimary,
-    marginBottom: 10,
+    marginBottom: 8,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  label: {
+    fontSize: 16,
+    color: colors.textPrimary,
+    marginRight: 8,
   },
   input: {
-    width: '80%',
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: colors.border,
     borderRadius: 8,
-    padding: 10,
-    color: '#fff',
-    backgroundColor: '#333',
-    marginBottom: 10,
-  },
-  total: {
-    fontSize: 18,
+    padding: 8,
+    minWidth: 60,
+    textAlign: 'center',
     color: colors.textPrimary,
   },
+  total: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+  }
 });

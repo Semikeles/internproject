@@ -1,6 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, ActivityIndicator, View } from 'react-native';
-import Header from '../components/Header';
+import React, { useEffect, useState } from 'react';
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  TextInput,
+} from 'react-native';
 import NasdaqCard from '../components/NasdaqCard';
 import { colors } from '../config/Color';
 
@@ -20,9 +26,6 @@ const POPULAR_SYMBOLS = [
   'JNJ', 'UNH', 'DHR', 'AVGO', 'TXN'
 ];
 
-// Noktalı sembollerde nokta yerine tire koyar (BRK.B => BRK-B)
-const sanitizeSymbol = (symbol) => symbol.replace('.', '-');
-
 export default function NasdaqScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [prices, setPrices] = useState([]);
@@ -31,29 +34,19 @@ export default function NasdaqScreen() {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const promises = POPULAR_SYMBOLS.map(symbol => {
-          const apiSymbol = sanitizeSymbol(symbol);
-          return fetch(`https://finnhub.io/api/v1/quote?symbol=${apiSymbol}&token=${API_KEY}`)
+        const promises = POPULAR_SYMBOLS.map(symbol =>
+          fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${API_KEY}`)
             .then(res => res.json())
-            .then(data => {
-              // Konsolda kontrol için
-              console.log(`API response for ${symbol} (sent as ${apiSymbol}):`, data);
-              return {
-                symbol,
-                price: data.c ?? 0,
-              };
-            });
-        });
-
+            .then(data => ({ symbol, price: data.c || 0 }))
+        );
         const results = await Promise.all(promises);
         setPrices(results);
-      } catch (error) {
-        console.error('Fetch error:', error);
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchAll();
   }, []);
 
@@ -62,40 +55,48 @@ export default function NasdaqScreen() {
   );
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <Header
-        showBack={true}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+    <SafeAreaView style={styles.safe}>
+      <TextInput
+        placeholder="Search..."
+        style={styles.searchInput}
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholderTextColor={colors.textSecondary}
       />
-
       {loading ? (
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
-        filtered.map(item => (
-          <NasdaqCard
-            key={item.symbol}
-            symbol={item.symbol}
-            unitPrice={item.price}
-          />
-        ))
+        <ScrollView contentContainerStyle={styles.container}>
+          {filtered.map(item => (
+            <NasdaqCard key={item.symbol} symbol={item.symbol} unitPrice={item.price} />
+          ))}
+        </ScrollView>
       )}
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingBottom: 16,
-    paddingTop: 12,
+  safe: {
+    flex: 1,
     backgroundColor: colors.background,
-    flexGrow: 1,
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    padding: 8,
+    margin: 16,
+    color: colors.textPrimary,
+  },
+  container: {
+    padding: 16,
   },
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',
-    marginTop: 40,
+    alignItems: 'center',
   },
 });

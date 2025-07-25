@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { SafeAreaView, View, Text, FlatList, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { colors } from '../config/Color';
+import Header from '../components/Header';
 
 export default function PortfolioScreen() {
   const symbols = useSelector(state => state.portfolio.symbols);
@@ -36,7 +37,9 @@ export default function PortfolioScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <Header title="Portfolio" showBack={false} />
+
       {symbols.length === 0 ? (
         <Text style={styles.emptyText}>Your portfolio is empty.</Text>
       ) : (
@@ -44,9 +47,10 @@ export default function PortfolioScreen() {
           data={symbols}
           renderItem={renderItem}
           keyExtractor={(item, index) => `${item.symbol}-${item.type}-${index}`}
+          contentContainerStyle={styles.listContent}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -54,13 +58,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  listContent: {
     padding: 16,
+    paddingBottom: 32,
   },
   card: {
     backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
+    width: '100%',
   },
   symbol: {
     fontSize: 18,

@@ -1,8 +1,11 @@
+// UserScreen.js
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../config/Color';
+import { auth } from '../config/firebaseConfig';
+import { signOut } from 'firebase/auth';
 
 export default function UserScreen() {
   const navigation = useNavigation();
@@ -12,7 +15,12 @@ export default function UserScreen() {
   };
 
   const handleLogout = () => {
-    navigation.navigate('Login');
+    signOut(auth)
+      .then(() => console.log('Logged out'))
+      .catch(err => {
+        console.log(err);
+        Alert.alert('Error', 'Logout failed');
+      });
   };
 
   return (
@@ -57,7 +65,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   logoutButton: {
-    backgroundColor: '#dc3545', // Red button for logout
+    backgroundColor: '#dc3545',
   },
   buttonText: {
     color: '#fff',

@@ -8,77 +8,79 @@ import { colors } from '../config/Color';
 export default function CryptoCard({ symbol, pair = 'USDT', price }) {
   const dispatch = useDispatch();
   const [quantity, setQuantity] = useState('1');
+  const [total, setTotal] = useState('0.00');
 
-  const total = () => {
+  useEffect(() => {
     const qty = parseFloat(quantity);
-    return !isNaN(qty) ? (qty * price).toFixed(2) : '0.00';
-  };
+    if (!isNaN(qty)) {
+      setTotal((price * qty).toFixed(2));
+    } else {
+      setTotal('0.00');
+    }
+  }, [price, quantity]);
 
-  const handleAddToPortfolio = () => {
+  const handleAdd = () => {
     const qty = parseFloat(quantity);
     if (!qty || qty <= 0) {
       Alert.alert('Error', 'Please enter a valid quantity.');
       return;
     }
-
     dispatch(addSymbol({
       symbol,
       type: 'crypto',
       quantity: qty,
-      price: price,
+      price,
     }));
-
     Alert.alert('Success', `${symbol} added to portfolio.`);
     setQuantity('1');
   };
 
   return (
     <View style={styles.card}>
-      <View style={styles.row}>
-        <Text style={styles.symbol}>{symbol}/{pair}</Text>
-        <TouchableOpacity onPress={handleAddToPortfolio}>
+      <View style={styles.headerRow}>
+        <Text style={styles.title}>{symbol}/{pair}</Text>
+        <TouchableOpacity onPress={handleAdd}>
           <Ionicons name="cart-outline" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
-      <Text style={styles.price}>
-        Price: {price !== null ? price.toFixed(2) : 'Loading...'} USD
-      </Text>
+
+      <Text style={styles.price}>Price: {price.toFixed(2)} USD</Text>
 
       <View style={styles.row}>
         <Text style={styles.label}>Quantity:</Text>
         <TextInput
           style={styles.input}
-          keyboardType="decimal-pad"
           value={quantity}
+          keyboardType="decimal-pad"
           onChangeText={setQuantity}
-          placeholder="0"
         />
       </View>
 
-      <Text style={styles.total}>Total: {total()} USD</Text>
+      <Text style={styles.total}>Total: {total} USD</Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
+const styles = StyleSheet.create({card: {
     backgroundColor: colors.surface,
     padding: 16,
     borderRadius: 12,
     marginVertical: 8,
+    width: '90%',
+    alignSelf: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,
   },
-  row: {
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
   },
-  symbol: {
+  title: {
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.textPrimary,
@@ -86,23 +88,31 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 16,
     color: colors.textPrimary,
+    marginBottom: 8,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   label: {
     fontSize: 16,
     color: colors.textPrimary,
+    marginRight: 8,
   },
   input: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 8,
     padding: 8,
-    minWidth: 80,
+    minWidth: 60,
     textAlign: 'center',
     color: colors.textPrimary,
   },
   total: {
-    marginTop: 8,
+    fontSize: 16,
     fontWeight: 'bold',
     color: colors.textPrimary,
   },
+ 
 });

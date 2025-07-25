@@ -1,36 +1,22 @@
-import React, { useEffect } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, BackHandler, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { SafeAreaView, View, Text, StyleSheet, Dimensions } from 'react-native';
 import Card from '../components/Card';
-import Header from '../components/Header';
+import Header from '../components/Header'; // Header'ı ekledik
 import { colors } from '../config/Color';
 
 const cards = [
   { id: '1', title: 'Crypto', icon: 'logo-bitcoin' },
   { id: '2', title: 'Nasdaq', icon: 'bar-chart' },
   { id: '3', title: 'Bist', icon: 'trending-up' },
-  { id: '4', title: 'Gold', icon: 'cash' }, // Gold Card olarak değiştirildi
+  { id: '4', title: 'Gold', icon: 'cash' },
 ];
 
 const { width, height } = Dimensions.get('window');
 
-export default function HomeScreen() {
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    const backAction = () => {
-      navigation.navigate('Login');
-      return true;
-    };
-
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-
-    return () => backHandler.remove();
-  }, [navigation]);
-
+export default function HomeScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
-      <Header navigation={navigation} showBack={true} />
+      <Header title="Home" showBack={false} /> {/* Başlık ve geri buton kontrolü */}
 
       <View style={styles.backgroundSymbolContainer} pointerEvents="none">
         <Text style={styles.backgroundSymbol}>₣</Text>
@@ -44,17 +30,7 @@ export default function HomeScreen() {
             key={card.id}
             title={card.title}
             icon={card.icon}
-            onPress={() => {
-              if (card.title === 'Crypto') {
-                navigation.navigate('Crypto');
-              } else if (card.title === 'Nasdaq') {
-                navigation.navigate('Nasdaq');
-              } else if (card.title === 'Bist') {
-                navigation.navigate('Bist');
-              } else if (card.title === 'Gold') {
-                navigation.navigate('Gold'); // GoldScreen'e yönlendiriliyor
-              }
-            }}
+            onPress={() => navigation.navigate(card.title)}
           />
         ))}
       </View>

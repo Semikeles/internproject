@@ -1,26 +1,28 @@
+// GoldScreen.js
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import Header from '../components/Header';
+import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
 import GoldCard from '../components/GoldCard';
 import { colors } from '../config/Color';
 
-export default function GoldScreen({ navigation }) {
+export default function GoldScreen() {
   return (
-    <>
-      <Header showBack={true} navigation={navigation} title="Gold Price" />
+    <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={{ marginTop: 20 }}>
           <GoldCard />
         </View>
       </ScrollView>
-    </>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   container: {
     padding: 16,
-    backgroundColor: colors.background,
     flexGrow: 1,
   },
 });
