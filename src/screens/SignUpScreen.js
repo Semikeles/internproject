@@ -13,32 +13,31 @@ import {
 import { colors } from '../config/Color';
 const icon = require('../../assets/icon.png');
 
-// ✅ Firebase Auth import
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/firebaseConfig';
 
-export default function LoginScreen({ navigation }) {
-  const [loginForm, setLoginForm] = useState({
+export default function SignUpScreen({ navigation }) {
+  const [signUpForm, setSignUpForm] = useState({
     email: '',
     password: '',
   });
 
-  const handleLogin = () => {
-    const { email, password } = loginForm;
+  const handleSignUp = () => {
+    const { email, password } = signUpForm;
 
-    if (email.length === 0 || password.length === 0) {
-      Alert.alert('Hata', 'Lütfen tüm alanları doldurun.');
+    if (email.length === 0 || password.length < 6) {
+      Alert.alert('Hata', 'Geçerli bir mail ve en az 6 karakter şifre girin.');
       return;
     }
 
-    signInWithEmailAndPassword(auth, email, password)
+    createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log('Login Success:', userCredential.user.email);
-        navigation.replace('MainTabs');
+        console.log('SignUp Success:', userCredential.user.email);
+        navigation.replace('MainTabs'); // Kayıt olunca direkt ana sayfa
       })
       .catch((error) => {
-        console.log('Login Error:', error);
-        Alert.alert('Hata', 'Email veya şifre yanlış.');
+        console.log('SignUp Error:', error);
+        Alert.alert('Hata', error.message);
       });
   };
 
@@ -49,7 +48,7 @@ export default function LoginScreen({ navigation }) {
           <Image source={icon} style={styles.headerImg} />
         </View>
 
-        <Text style={styles.title}>Welcome</Text>
+        <Text style={styles.title}>Create Account</Text>
 
         <View style={styles.form}>
           <View style={styles.inputGroup}>
@@ -60,8 +59,8 @@ export default function LoginScreen({ navigation }) {
               placeholderTextColor={colors.textSecondary}
               keyboardType="email-address"
               autoCapitalize="none"
-              value={loginForm.email}
-              onChangeText={email => setLoginForm({ ...loginForm, email })}
+              value={signUpForm.email}
+              onChangeText={email => setSignUpForm({ ...signUpForm, email })}
             />
           </View>
 
@@ -72,17 +71,17 @@ export default function LoginScreen({ navigation }) {
               style={styles.inputControl}
               placeholder="***************"
               placeholderTextColor={colors.textSecondary}
-              value={loginForm.password}
-              onChangeText={password => setLoginForm({ ...loginForm, password })}
+              value={signUpForm.password}
+              onChangeText={password => setSignUpForm({ ...signUpForm, password })}
             />
           </View>
 
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Login</Text>
+          <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+            <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-            <Text style={styles.linkText}>Don't have an account? Sign up</Text>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Text style={styles.linkText}>Already have an account? Login</Text>
           </TouchableOpacity>
         </View>
       </View>

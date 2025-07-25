@@ -17,14 +17,15 @@ import { auth } from './src/config/firebaseConfig';
 
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
+import SignUpScreen from './src/screens/SignUpScreen'; // ✅ Kayıt ekranı
 import HomeScreen from './src/screens/HomeScreen';
 import PortfolioScreen from './src/screens/PortfolioScreen';
 import UserScreen from './src/screens/UserScreen';
 import NasdaqScreen from './src/screens/NasdaqScreen';
 import CryptoScreen from './src/screens/CryptoScreen';
 import EditProfileScreen from './src/screens/EditprofileScreen';
-import BistScreen from './src/screens/BistScreen'; 
-import GoldScreen from './src/screens/GoldScreen'; 
+import BistScreen from './src/screens/BistScreen';
+import GoldScreen from './src/screens/GoldScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -65,7 +66,6 @@ export default function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // ✅ Burada getAuth tekrar çağrılmıyor, direkt import edilen auth kullanılıyor
     const unsubscribe = onAuthStateChanged(auth, user => {
       setUser(user);
       if (initializing) setInitializing(false);
@@ -120,11 +120,18 @@ export default function App() {
               />
             </>
           ) : (
-            <Stack.Screen
-              name="Login"
-              component={LoginScreen}
-              options={{ headerShown: false }}
-            />
+            <>
+              <Stack.Screen
+                name="Login"
+                component={LoginScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="SignUp"
+                component={SignUpScreen}
+                options={{ headerShown: false }}
+              />
+            </>
           )}
         </Stack.Navigator>
       </NavigationContainer>
