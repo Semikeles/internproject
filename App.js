@@ -1,12 +1,10 @@
-// App.js
 import React, { useState, useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import {
-  NavigationContainer,
-} from '@react-navigation/native';
+import { ActivityIndicator, View, useColorScheme } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { StatusBar } from 'expo-status-bar';
 
 import { Provider } from 'react-redux';
 import { store } from './src/store/Index';
@@ -62,6 +60,7 @@ function MainTabs() {
 export default function App() {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState(null);
+  const scheme = useColorScheme();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, user => {
@@ -81,6 +80,10 @@ export default function App() {
 
   return (
     <Provider store={store}>
+      <StatusBar
+        style={scheme === 'dark' ? 'light' : 'dark'}
+        backgroundColor={scheme === 'dark' ? '#000000' : '#ffffff'}
+      />
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{

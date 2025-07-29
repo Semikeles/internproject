@@ -1,14 +1,24 @@
-// UserScreen.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../config/Color';
 import { auth } from '../config/firebaseConfig';
-import { signOut } from 'firebase/auth';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
 
 export default function UserScreen() {
   const navigation = useNavigation();
+  const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUsername(user.displayName || user.email || 'User');
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   const handleEditProfile = () => {
     navigation.navigate('EditProfile');
@@ -26,8 +36,7 @@ export default function UserScreen() {
   return (
     <View style={styles.container}>
       <Ionicons name="person-circle-outline" size={80} color={colors.primary} />
-
-      <Text style={styles.username}>Durmuş Semih Keleş</Text>
+      <Text style={styles.username}>{username}</Text>
 
       <TouchableOpacity style={styles.button} onPress={handleEditProfile}>
         <Ionicons name="create-outline" size={20} color="#fff" />
