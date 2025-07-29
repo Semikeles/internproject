@@ -1,24 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../config/Color';
 import { auth } from '../config/firebaseConfig';
-import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import app from '../config/firebaseConfig';
+
+const db = getFirestore(app);
 
 export default function UserScreen() {
   const navigation = useNavigation();
+  const isFocused = useIsFocused(); // sayfa tekrar gelince yenilemek için
   const [username, setUsername] = useState('');
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUsername(user.displayName || user.email || 'User');
+  const loadUserData = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const docRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const fullName = `${data.name || ''} ${data.surname || ''}`.trim();
+          setUsername(fullName || user.email);
+        } else {
+          setUsername(user.email); // fallback
+        }
+      } catch (error) {
+        console.log('Kullanıcı verisi alınamadı:', error);
+        setUsername(user.email);
       }
-    });
+    }
+  };
 
-    return unsubscribe;
-  }, []);
+  useEffect(() => {
+    if (isFocused) {
+      loadUserData();
+    }
+  }, [isFocused]);
 
   const handleEditProfile = () => {
     navigation.navigate('EditProfile');
@@ -26,10 +47,10 @@ export default function UserScreen() {
 
   const handleLogout = () => {
     signOut(auth)
-      .then(() => console.log('Logged out'))
+      .then(() => console.log('Çıkış yapıldı'))
       .catch(err => {
         console.log(err);
-        Alert.alert('Error', 'Logout failed');
+        Alert.alert('Hata', 'Çıkış yapılamadı');
       });
   };
 
